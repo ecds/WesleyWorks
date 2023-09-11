@@ -1,5 +1,5 @@
-GITHUB_ORG="srophe"
-GITHUB_REPOSITORY="britishLibrary-data"
+GITHUB_ORG="ecds"
+GITHUB_REPOSITORY="WesleyWorks-data"
 
 # remove any old auto deploy
 rm -rf autodeploy
@@ -57,7 +57,7 @@ DOCKER_URL=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:lat
 echo "Loging in to AWS"
 # Get the aws docker login creds. Note: only works if the github repo is allowed access from OIDC
 aws ecr get-login-password --region $AWS_REGION | \
-docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com 
+docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
 echo "Logged in successfully"
 
 docker tag $PACKAGE_NAME:$VERSION $DOCKER_URL
