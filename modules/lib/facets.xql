@@ -1,21 +1,21 @@
 xquery version "3.1";
 
 (:
- : Srophe application facets module. 
+ : Srophe application facets module.
  :  1) Creates lucene index definitions based on facet-def.xml files living in the Srophe application.
- :  2) Creates xquery filters for passing facets to search/browse functions within the Srophe application. 
+ :  2) Creates xquery filters for passing facets to search/browse functions within the Srophe application.
  :  3) Creates facet display for search/browse HTML pages in Srophe application
  :
  : Uses the following eXist-db specific functions:
- :      util:eval 
+ :      util:eval
  :      request:get-parameter
  :      request:get-parameter-names()
- : 
- : Facet definition files based on the EXpath specs. 
+ :
+ : Facet definition files based on the EXpath specs.
  : @see http://expath.org/spec/facet
  :
  : @author Winona Salesky
- : @version .05    
+ : @version .05
 :)
 
 module namespace sf = "http://srophe.org/srophe/facets";
@@ -34,14 +34,14 @@ declare variable $sf:QUERY_OPTIONS := map {
 declare variable $sf:sortFieldsConfig := $config:get-config//*:sortFields/*:fields;
 
 (: Add sort fields to browse and search options. Used for sorting, add sort fields and functions, add sort function:)
-declare variable $sf:sortFields :=  let $fields := 
+declare variable $sf:sortFields :=  let $fields :=
                                         if($sf:sortFieldsConfig != '') then
                                             for $f in $sf:sortFieldsConfig
-                                            return $f 
+                                            return $f
                                         else ("title", "author","titleSyriac","titleArabic")
                                     return map { "fields": $fields };
 
-(:~ 
+(:~
  : Build indexes for fields and facets as specified in facet-def.xml and search-config.xml files
  : Note: Hold off on fields until boost has been added. See: https://github.com/eXist-db/exist/issues/3403
 :)
@@ -52,24 +52,24 @@ declare function sf:build-index(){
             <module uri="http://srophe.org/srophe/facets" prefix="sf" at="xmldb:exist:///{$config:app-root}/modules/lib/facets.xql"/>
             <text qname="tei:TEI">
             {
-            let $facets :=     
+            let $facets :=
                 for $f in collection($config:app-root)//facet:facet-definition
                 let $path := document-uri(root($f))
                 group by $facet-grp := $f/@name
-                return 
-                    if($f[1]/facet:group-by/@function != '') then 
+                return
+                    if($f[1]/facet:group-by/@function != '') then
                        <facet dimension="{functx:words-to-camel-case($facet-grp)}" expression="sf:facet(descendant-or-self::tei:body, {concat("'",$path[1],"'")}, {concat("'",$facet-grp,"'")})"/>
                     else if($f[1]/facet:range) then
-                       <facet dimension="{functx:words-to-camel-case($facet-grp)}" expression="sf:facet(descendant-or-self::tei:body, {concat("'",$path[1],"'")}, {concat("'",$facet-grp,"'")})"/>                
-                    else 
+                       <facet dimension="{functx:words-to-camel-case($facet-grp)}" expression="sf:facet(descendant-or-self::tei:body, {concat("'",$path[1],"'")}, {concat("'",$facet-grp,"'")})"/>
+                    else
                         <facet dimension="{functx:words-to-camel-case($facet-grp)}" expression="{replace($f[1]/facet:group-by/facet:sub-path/text(),"&#34;","'")}"/>
-            return 
+            return
                 $facets
             }
             {
-                if($sf:sortFieldsConfig != '') then 
+                if($sf:sortFieldsConfig != '') then
                     for $f in $sf:sortFieldsConfig
-                    return 
+                    return
                     element field {
                             attribute { "name" } {$f/text()},
                             attribute { "expression" } {
@@ -78,7 +78,7 @@ declare function sf:build-index(){
                                 else concat("sf:field(.,'",$f/text(),"')")
                             }
                            }
-                else 
+                else
                    ( <field name="title" expression="sf:field(.,'title')" boost="2.5"/>,
                     <field name="titleSyriac" expression="sf:field(., 'titleSyriac')" boost="2.5"/>,
                     <field name="titleArabic" expression="sf:field(., 'titleArabic')" boost="2.5"/>,
@@ -105,7 +105,7 @@ declare function sf:build-index(){
             <text qname="tei:quote"/>
             <text qname="tei:foreign"/>
             <text qname="tei:rubric"/>
-        </lucene> 
+        </lucene>
         <range>
             <create qname="@syriaca-computed-start" type="xs:date"/>
             <create qname="@syriaca-computed-end" type="xs:date"/>
@@ -138,42 +138,42 @@ declare function sf:build-index(){
 </collection>
 };
 
-(:~ 
+(:~
  : Update collection.xconf file for data application, can be called by post install script, or index.xql
  : Save collection to correct application subdirectory in /db/system/config
  : Trigger a re-index.
- : 
- : @note reindex does not seem to work... investigate 
+ :
+ : @note reindex does not seem to work... investigate
  :)
 declare function sf:update-index(){
-    let $updateXconf := 
+    let $updateXconf :=
       try {
             let $configPath := concat('/db/system/config',replace($config:data-root,'/data',''))
             return xmldb:store($configPath, 'collection.xconf', sf:build-index())
         } catch * {('error: ',concat($err:code, ": ", $err:description))}
-    return 
+    return
         if(starts-with($updateXconf,'error:')) then
             $updateXconf
         else xmldb:reindex($config:data-root)
 };
 
-(: Build facet path based on facet definition file. Used by collection.xconf to build facets at index time. 
+(: Build facet path based on facet definition file. Used by collection.xconf to build facets at index time.
  : @param $path - path to facet definition file, if empty assume root.
- : @param $name - name of facet in facet definition file. 
+ : @param $name - name of facet in facet definition file.
 :)
 declare function sf:facet($element as item()*, $path as xs:string, $name as xs:string){
-    let $facet-definition :=  
+    let $facet-definition :=
         if(doc-available($path)) then
             doc($path)//facet:facet-definition[@name=$name]
-        else () 
-    let $xpath := $facet-definition/facet:group-by/facet:sub-path/text()    
-    return 
-        if(not(empty($facet-definition))) then  
-           if($facet-definition/facet:group-by/@function != '') then 
-             try { 
+        else ()
+    let $xpath := $facet-definition/facet:group-by/facet:sub-path/text()
+    return
+        if(not(empty($facet-definition))) then
+           if($facet-definition/facet:group-by/@function != '') then
+             try {
                    util:eval(concat('sf:facet-',string($facet-definition/facet:group-by/@function),'($element,$facet-definition, $name)'))
                 } catch * {concat($err:code, ": ", $err:description)}
-            else if($facet-definition/facet:range) then try { 
+            else if($facet-definition/facet:range) then try {
                    sf:facet-range($element,$facet-definition, $name)
                 } catch * {concat($err:code, ": ", $err:description)}
             else util:eval(concat('$element/',$xpath))
@@ -182,37 +182,37 @@ declare function sf:facet($element as item()*, $path as xs:string, $name as xs:s
 
 (: For sort fields, or fields not defined in search-config.xml :)
 declare function sf:field($element as item()*, $name as xs:string){
-    try { 
+    try {
         util:eval(concat('sf:field-',$name,'($element,$name)'))
     } catch * {concat($err:code, ": ", $err:description)}
 };
 
 
 
-(:~ 
- : Build fields path based on search-config.xml file. Used by collection.xconf to build facets at index time. 
+(:~
+ : Build fields path based on search-config.xml file. Used by collection.xconf to build facets at index time.
  : @param $path - path to facet definition file, if empty assume root.
- : @param $name - name of facet in facet definition file. 
- : 
+ : @param $name - name of facet in facet definition file.
+ :
  : @note not currently implemented
 :)
 declare function sf:field($element as item()*, $path as xs:string, $name as xs:string){
-    let $field-definition :=  
+    let $field-definition :=
         if(doc-available($path)) then
             doc($path)//*:field[@name=$name]
-        else () 
-    let $xpath := $field-definition/*:expression/text()    
-    return 
-        if(not(empty($field-definition))) then  
-            if($field-definition/@function != '') then 
-                try { 
+        else ()
+    let $xpath := $field-definition/*:expression/text()
+    return
+        if(not(empty($field-definition))) then
+            if($field-definition/@function != '') then
+                try {
                     util:eval(concat('sf:field-',string($field-definition/@function),'($element,$field-definition, $name)'))
                 } catch * {concat($err:code, ": ", $err:description)}
-            else util:eval(concat('$element/',$xpath)) 
-        else ()  
+            else util:eval(concat('$element/',$xpath))
+        else ()
 };
 
-(:~ 
+(:~
  : Create HTML display for facets
  : Use facet-definition files for labels and sort options
 :)
@@ -221,7 +221,7 @@ declare function sf:display($result as item()*, $facet-definition as item()*) {
     let $name := string($facet/@name)
     let $count := if(request:get-parameter(concat('all-',$name), '') = 'on' ) then () else string($facet/facet:max-values/@show)
     let $f := ft:facets($result, $name, $count)
-    return 
+    return
         if (map:size($f) > 0) then
             <span class="facet-grp">
                 <span class="facet-title">{string($facet/@label)}</span>
@@ -231,8 +231,8 @@ declare function sf:display($result as item()*, $facet-definition as item()*) {
                         let $param-name := concat('facet-',$name)
                         let $facet-param := concat($param-name,'=',$label)
                         let $active := if(request:get-parameter($param-name, '') = $label) then 'active' else ()
-                        let $url-params := 
-                            if($active) then replace(replace(replace(request:get-query-string(),encode-for-uri($label),''),concat($param-name,'='),''),'&amp;&amp;','&amp;') 
+                        let $url-params :=
+                            if($active) then replace(replace(replace(request:get-query-string(),encode-for-uri($label),''),concat($param-name,'='),''),'&amp;&amp;','&amp;')
                             else concat($facet-param,'&amp;',request:get-query-string())
                         return
                             <a href="?{$url-params}" class="facet-label btn btn-default {$active}">
@@ -240,17 +240,17 @@ declare function sf:display($result as item()*, $facet-definition as item()*) {
                             {$label} <span class="count"> ({$freq}) </span> </a>
                     })
                 })}
-                {if(map:size($f) = xs:integer($count)) then 
+                {if(map:size($f) = xs:integer($count)) then
                     <a href="?{request:get-query-string()}&amp;all-{$name}=on" class="facet-label btn btn-info"> View All </a>
                  else ()}
                 </span>
             </span>
-        else ()  
+        else ()
 };
 
-(:~ 
- : Add generic sort option to facets 
- : @depreciated 
+(:~
+ : Add generic sort option to facets
+ : @depreciated
 :)
 declare function sf:sort($facets as map(*)?) {
     array {
@@ -265,17 +265,17 @@ declare function sf:sort($facets as map(*)?) {
     }
 };
 
-(:~ 
- : Add sort option to facets based on facet definition 
+(:~
+ : Add sort option to facets based on facet definition
  : Options are
- :    sort by value (ascending/descending), 
- :    sort by result count (ascending/descending) 
- :    sort on range order attribute (ascending/descending) . 
- : Range facets sort on order attribute. Example: 
+ :    sort by value (ascending/descending),
+ :    sort by result count (ascending/descending)
+ :    sort on range order attribute (ascending/descending) .
+ : Range facets sort on order attribute. Example:
  :    <range type="xs:year">
  :           <bucket lt="0001-01-01" name="BC dates" order="1"/>
  :           <bucket gt="0001-01-01" lt="0100-01-01" name="1-100" order="2"/>
- :   </range>        
+ :   </range>
 :)
 declare function sf:sort($facets as map(*)?, $facet-definition) {
 if($facet-definition/facet:order-by/text() = 'value') then
@@ -290,7 +290,7 @@ if($facet-definition/facet:order-by/text() = 'value') then
             else
                 ()
         }
-    else 
+    else
         array {
             if (exists($facets)) then
                 for $key in map:keys($facets)
@@ -316,7 +316,7 @@ if($facet-definition/facet:range) then
             else
                 ()
         }
-    else 
+    else
         array {
             if (exists($facets)) then
                 for $key in map:keys($facets)
@@ -340,7 +340,7 @@ else if($facet-definition/facet:order-by[@direction='descending']) then
         else
             ()
     }
-else 
+else
  array {
         if(exists($facets)) then
             for $key in map:keys($facets)
@@ -355,7 +355,7 @@ else
 
 (:~
  : Build map for search query
- : Used by search functions to add facet query to search/browse queries. 
+ : Used by search functions to add facet query to search/browse queries.
  :)
 declare function sf:facet-query() {
     map:merge((
@@ -381,7 +381,7 @@ declare function sf:facet-query() {
  : @param $type value of type attribute
 :)
 declare function sf:type($value as item()*, $type as xs:string?) as item()*{
-    if($type != '') then  
+    if($type != '') then
         if($type = 'xs:string') then xs:string($value)
         else if($type = 'xs:string') then xs:string($value)
         else if($type = 'xs:decimal') then xs:decimal($value)
@@ -394,12 +394,12 @@ declare function sf:type($value as item()*, $type as xs:string?) as item()*{
         else if($type = 'xs:double') then xs:double($value)
         else if($type = 'xs:dateTime') then xs:dateTime($value)
         else if($type = 'xs:date') then xs:date($value)
-        else if($type = 'xs:gYearMonth') then xs:gYearMonth($value)        
+        else if($type = 'xs:gYearMonth') then xs:gYearMonth($value)
         else if($type = 'xs:gYear') then xs:gYear($value)
         else if($type = 'xs:gMonthDay') then xs:gMonthDay($value)
-        else if($type = 'xs:gMonth') then xs:gMonth($value)        
+        else if($type = 'xs:gMonth') then xs:gMonth($value)
         else if($type = 'xs:gDay') then xs:gDay($value)
-        else if($type = 'xs:duration') then xs:duration($value)        
+        else if($type = 'xs:duration') then xs:duration($value)
         else if($type = 'xs:anyURI') then xs:anyURI($value)
         else if($type = 'xs:Name') then xs:Name($value)
         else $value
@@ -411,37 +411,37 @@ declare function sf:type($value as item()*, $type as xs:string?) as item()*{
 :)
 declare function sf:odd2text($element as xs:string?, $label as xs:string?) as xs:string* {
     let $odd-path := $config:get-config//repo:odd/text()
-    let $odd-file := 
+    let $odd-file :=
                     if($odd-path != '') then
-                        if(starts-with($odd-path,'http')) then 
+                        if(starts-with($odd-path,'http')) then
                             hc:send-request(<hc:request href="{xs:anyURI($odd-path)}" method="get"/>)[2]
                         else doc($config:app-root || $odd-path)
                     else ()
-    return 
+    return
         if($odd-path != '') then
             let $odd := $odd-file
-            return 
+            return
                 try {
-                    if($odd/descendant::*[@ident = $element][1]/descendant::tei:valItem[@ident=$label][1]/tei:gloss[1]/text()) then 
+                    if($odd/descendant::*[@ident = $element][1]/descendant::tei:valItem[@ident=$label][1]/tei:gloss[1]/text()) then
                         $odd/descendant::*[@ident = $element][1]/descendant::tei:valItem[@ident=$label][1]/tei:gloss[1]/text()
-                    else if($odd/descendant::tei:valItem[@ident=$label][1]/tei:gloss[1]/text()) then 
+                    else if($odd/descendant::tei:valItem[@ident=$label][1]/tei:gloss[1]/text()) then
                         $odd/descendant::tei:valItem[@ident=$label][1]/tei:gloss[1]/text()
-                    else ()    
+                    else ()
                 } catch * {
                     <error>Caught error {$err:code}: {$err:description}</error>
-                }  
+                }
          else ()
 };
 
-(:~ 
- : Syriaca.org strip non sort characters for sorting 
+(:~
+ : Syriaca.org strip non sort characters for sorting
  :)
 declare function sf:build-sort-string($titlestring as xs:string?) as xs:string* {
     replace(normalize-space($titlestring),'^\s+|^[‘|ʻ|ʿ|ʾ]|^[tT]he\s+[^\p{L}]+|^[dD]e\s+|^[dD]e-|^[oO]n\s+[aA]\s+|^[oO]n\s+|^[aA]l-|^[aA]n\s|^[aA]\s+|^\d*\W|^[^\p{L}]','')
 };
 
-(:~ 
- : Syriaca.org strip non sort characters for sorting 
+(:~
+ : Syriaca.org strip non sort characters for sorting
  :)
 declare function sf:build-sort-string-arabic($titlestring as xs:string?) as xs:string* {
     replace(
@@ -458,16 +458,16 @@ declare function sf:build-sort-string-arabic($titlestring as xs:string?) as xs:s
 (: Custom search fields, some generic facets provided here, including for handling ranges, and arrays :)
 
 (:~
- : Group by array is used for facets with multiple items in an attribute, common in TEI attributes.  
+ : Group by array is used for facets with multiple items in an attribute, common in TEI attributes.
  :)
 declare function sf:facet-group-by-array($element as item()*, $facet-definition as item(), $name as xs:string){
-    let $xpath := $facet-definition/facet:group-by/facet:sub-path/text()    
-    return tokenize(util:eval(concat('$element/',$xpath)),' ') 
+    let $xpath := $facet-definition/facet:group-by/facet:sub-path/text()
+    return tokenize(util:eval(concat('$element/',$xpath)),' ')
 };
 
 (:~
- : Range facets 
- : Example range facet: 
+ : Range facets
+ : Example range facet:
     <range type="xs:year">
         <bucket lt="0001" name="BC dates" order="22"/>
         <bucket gt="1600-01-01" lt="1700-01-01" name="1600-1700" order="5"/>
@@ -478,13 +478,13 @@ declare function sf:facet-group-by-array($element as item()*, $facet-definition 
     </range>
 :)
 declare function sf:facet-range($element as item()*, $facet-definition as item(), $name as xs:string){
-    let $range := $facet-definition/facet:range 
+    let $range := $facet-definition/facet:range
     for $r in $range/facet:bucket
     let $path := if($r/@lt and $r/@lt != '' and $r/@gt and $r/@gt != '') then
                     concat('$element/',$facet-definition/descendant::facet:sub-path/text(),'[. >= "', sf:type($r/@gt, $range/@type),'" and . <= "',sf:type($r/@lt, $range/@type),'"]')
-                 else if($r/@lt and $r/@lt != '' and (not($r/@gt) or $r/@gt ='')) then 
+                 else if($r/@lt and $r/@lt != '' and (not($r/@gt) or $r/@gt ='')) then
                     concat('$element/',$facet-definition/descendant::facet:sub-path/text(),'[. <= "',sf:type($r/@lt, $range/@type),'"]')
-                 else if($r/@gt and $r/@gt != '' and (not($r/@lt) or $r/@lt ='')) then 
+                 else if($r/@gt and $r/@gt != '' and (not($r/@lt) or $r/@lt ='')) then
                     concat('$element/',$facet-definition/descendant::facet:sub-path/text(),'[. >= "', sf:type($r/@gt, $range/@type),'"]')
                  else if($r/@eq) then
                     concat('$element/',$facet-definition/descendant::facet:sub-path/text(),'[', $r/@eq ,']')
@@ -494,10 +494,10 @@ declare function sf:facet-range($element as item()*, $facet-definition as item()
 };
 
 (:~
- : TEI Title field - Arabic, specific to Srophe applications 
+ : TEI Title field - Arabic, specific to Srophe applications
  :)
 declare function sf:field-titleArabic($element as item()*, $name as xs:string){
-    if($element/descendant-or-self::*[contains(@syriaca-tags,'#syriaca-headword')][@xml:lang = 'ar']) then 
+    if($element/descendant-or-self::*[contains(@syriaca-tags,'#syriaca-headword')][@xml:lang = 'ar']) then
         for $title in $element/descendant::*[contains(@syriaca-tags,'#syriaca-headword')][@xml:lang = 'ar']
         let $ar := string-join($title/descendant::*[contains(@syriaca-tags,'#syriaca-headword')][@xml:lang = 'ar'][not(empty(node()))],' ')
         return sf:build-sort-string-arabic($ar)
@@ -505,34 +505,34 @@ declare function sf:field-titleArabic($element as item()*, $name as xs:string){
         for $title in $element/descendant::*[contains(@syriaca-tags,'#syriaca-headword')][@xml:lang = 'ar']
         let $ar := string-join($element/descendant::*[contains(@srophe:tags,'#headword')][@xml:lang = 'ar'][not(empty(node()))],' ')
         return sf:build-sort-string-arabic($ar)
-    else if($element/descendant::tei:person/tei:persName[@xml:lang = 'ar']) then 
+    else if($element/descendant::tei:person/tei:persName[@xml:lang = 'ar']) then
         for $title in $element/descendant::tei:person/tei:persName[@xml:lang = 'ar']
-        return sf:build-sort-string-arabic($title) 
-    else if($element/descendant::tei:place/tei:placeName[@xml:lang = 'ar']) then 
+        return sf:build-sort-string-arabic($title)
+    else if($element/descendant::tei:place/tei:placeName[@xml:lang = 'ar']) then
         for $title in $element/descendant::tei:place/tei:placeName[@xml:lang = 'ar']
         return sf:build-sort-string-arabic($title)
-    else if($element/descendant::tei:bibl/tei:title[@xml:lang = 'ar']) then 
+    else if($element/descendant::tei:bibl/tei:title[@xml:lang = 'ar']) then
         for $title in $element/descendant::tei:bibl/tei:title[@xml:lang = 'ar']
         return sf:build-sort-string-arabic($title)
-    else if($element/descendant::tei:teiHeader/tei:title[@xml:lang = 'ar']) then 
+    else if($element/descendant::tei:teiHeader/tei:title[@xml:lang = 'ar']) then
         for $title in $element/descendant::tei:teiHeader/tei:title[@xml:lang = 'ar']
-        return sf:build-sort-string-arabic($title)           
+        return sf:build-sort-string-arabic($title)
     else ()
 };
 
 (: Title Facet :)
 declare function sf:facet-title($element as item()*, $facet-definition as item(), $name as xs:string){
-    if($element/ancestor-or-self::tei:TEI/descendant::tei:biblStruct) then 
+    if($element/ancestor-or-self::tei:TEI/descendant::tei:biblStruct) then
         $element/ancestor-or-self::tei:TEI/descendant::tei:biblStruct/descendant::tei:title
     else $element/ancestor-or-self::tei:TEI/descendant::tei:titleStmt/tei:title
 };
 
 
 (:~
- : TEI author facet, specific to Srophe applications 
+ : TEI author facet, specific to Srophe applications
  :)
 declare function sf:facet-authors($element as item()*, $facet-definition as item(), $name as xs:string){
-    if($element/ancestor-or-self::tei:TEI/descendant::tei:biblStruct) then 
+    if($element/ancestor-or-self::tei:TEI/descendant::tei:biblStruct) then
         $element/ancestor-or-self::tei:TEI/descendant::tei:biblStruct/descendant::tei:author | $element/ancestor-or-self::tei:TEI/descendant::tei:biblStruct/descendant::tei:editor
     else $element/ancestor-or-self::tei:TEI/descendant::tei:titleStmt/descendant::tei:author
 };
@@ -540,43 +540,43 @@ declare function sf:facet-authors($element as item()*, $facet-definition as item
 
 (: Custom Fields and facets:)
 (:~
- : TEI Title field, specific to Srophe applications 
+ : TEI Title field, specific to Srophe applications
  :)
 declare function sf:field-title($element as item()*, $name as xs:string){
 (:
-this box should search by string in all textnodes of TEI:title and 
-                TEI:finalRubric EXCEPT those that are contained in TEI:additional, 
+this box should search by string in all textnodes of TEI:title and
+                TEI:finalRubric EXCEPT those that are contained in TEI:additional,
                 TEI:encodingDesc, and TEI:profileDesc and children of those elements.
     :)
    for $t in $element//tei:title[not(ancestor::tei:additional) and not(ancestor::tei:encodingDesc) and not(ancestor::tei:profileDesc)] |
              $element//tei:finalRubric[@xml:lang='en'][not(ancestor::tei:additional) and not(ancestor::tei:encodingDesc) and not(ancestor::tei:profileDesc)]
-   return $t     
+   return $t
 };
 
 (:~
- : TEI Title field - Syriac, specific to Srophe applications 
+ : TEI Title field - Syriac, specific to Srophe applications
  :)
 declare function sf:field-titleSyriac($element as item()*, $name as xs:string){
    for $t in $element//tei:title[@xml:lang='syr'][not(ancestor::tei:additional) and not(ancestor::tei:encodingDesc) and not(ancestor::tei:profileDesc)] |
              $element//tei:finalRubric[@xml:lang='syr'][not(ancestor::tei:additional) and not(ancestor::tei:encodingDesc) and not(ancestor::tei:profileDesc)]
-   return $t 
+   return $t
 };
 
 (: Author field :)
 declare function sf:field-author($element as item()*, $name as xs:string){
-(: this box should search by string in all textnodes of all 
+(: this box should search by string in all textnodes of all
                 TEI:Author EXCEPT those that are contained in TEI:additional and children of that element.  :)
-   
+
    for $a in $element//tei:author[not(ancestor::tei:additional)]
-   return $a      
+   return $a
 };
 
-(: British Library functions :)
+(: WesleyWorks Library functions :)
 (: By script :)
 declare function sf:facet-scriptValues($element as item()*, $facet-definition as item(), $name as xs:string){
-   
+
    let $script := $element/ancestor::tei:TEI/descendant::tei:msDesc/tei:physDesc/tei:handDesc/tei:handNote/@script
-   return 
+   return
         if($script = 'syr-Syre') then 'Estrangela script'
         else if($script = 'syr-Syrj') then 'West Syriac script'
         else if($script = 'syr-Syrn') then 'East Syriac script'
@@ -591,7 +591,7 @@ declare function sf:facet-scriptValues($element as item()*, $facet-definition as
 (: By material :)
 declare function sf:facet-materialValues($element as item()*, $facet-definition as item(), $name as xs:string){
     let $material := $element/ancestor::tei:TEI/descendant::tei:msDesc/tei:physDesc/tei:objectDesc/tei:supportDesc/@material
-    return 
+    return
         if($material = 'perg') then 'Parchment'
         else if($material = 'chart') then 'Paper'
         else if($material = 'mixed') then 'Mixed Material'

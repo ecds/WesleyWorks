@@ -14,9 +14,7 @@ echo "Ran app build successfully"
 echo "Fetching the data repository to build a data xar"
 git clone https://github.com/$GITHUB_ORG/$GITHUB_REPOSITORY
 
-cd $GITHUB_REPOSITORY
-rm -rf build
-mkdir build
+cd $GITHUB_REPOSITORY && rm -rf build && mkdir build
 echo "Running data build ..."
 ant
 echo "Ran data build successfully"
@@ -41,9 +39,9 @@ sed \
 echo "Copied secret key over successfully"
 
 # GET the version of the project from the expath-pkg.xml
-VERSION=$(cat expath-pkg.xml | grep package | grep version=  | awk -F'version="' '{ print $2 }' | awk -F'"' '{ print $1 }')
+# VERSION=$(cat expath-pkg.xml | grep package | grep version=  | awk -F'version="' '{ print $2 }' | awk -F'"' '{ print $1 }')
 # GET the package name of the project from the expath-pkg.xml file
-PACKAGE_NAME=$(cat expath-pkg.xml | grep package | grep version=  | awk -F'abbrev="' '{ print $2 }' | awk -F'"' '{ print tolower($1) }')
+# PACKAGE_NAME=$(cat expath-pkg.xml | grep package | grep version=  | awk -F'abbrev="' '{ print $2 }' | awk -F'"' '{ print tolower($1) }')
 
 echo "Deploying app $PACKAGE_NAME:$VERSION"
 
