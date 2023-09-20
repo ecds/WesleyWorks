@@ -7,7 +7,7 @@
     <license>GNU-LGPL</license>
     <copyright>true</copyright>
     <type>application</type>
-    <target>WesleyWorksrary</target>
+    <target>WesleyWorks</target>
     <prepare>pre-install.xql</prepare>
     <finish>post-install.xql</finish>
 <deployed>2022-03-17T10:32:21.457-04:00</deployed></meta>
