@@ -22,5 +22,5 @@ return
         '/db/apps/WesleyWorks',
         'https://github.com/ecds/WesleyWorks',
         'main',
-        '',
+        '${SECRET_KEY}',
         '')

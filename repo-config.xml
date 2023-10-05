@@ -4,7 +4,7 @@
     -->
     <config>
         <!-- Application title -->
-        <title>The British Library Collection. A Srophé web application</title>
+        <title>The WesleyWorks Library Collection. A Srophé web application</title>
         <!-- App description -->
         <description>A collaborative research project publishling online reference works concerning the
             culture, history, and literature of Syriac communities from antiquity to the present.</description>
@@ -17,9 +17,9 @@
         <!-- Root of app for building dynamic links. Default is eXist app root  /exist/apps/srophe -->
         <nav-base></nav-base>
         <!-- eXist app root for app deployment-->
-        <app-root>britishLibrary</app-root>
+        <app-root>WesleyWorks</app-root>
         <!-- eXist data app root for TEI application.  -->
-        <data-root>britishLibrary-data</data-root>
+        <data-root>WesleyWorks-data</data-root>
         <!-- Base URI for identifiers in app data -->
         <base_uri>http://syriaca.org</base_uri>
         <!--
@@ -58,7 +58,7 @@
 
         <!-- Configure Collections. Optional -->
         <collections>
-            <collection name="bl" title="The Digital Wright: A Database of Syriac Manuscripts in the British Library" collection-URI="http://syriaca.org/bl" app-root="/" data-root="manuscripts" record-URI-pattern="http://syriaca.org/manuscript/"/>
+            <collection name="bl" title="The Digital Wright: A Database of Syriac Manuscripts in the WesleyWorks Library" collection-URI="http://syriaca.org/bl" app-root="/" data-root="manuscripts" record-URI-pattern="http://syriaca.org/manuscript/"/>
             <!--<collection name="Short-name used in html pages to reference collection, module name"
                 series="Series name used in TEI biblScope @depreciated, use collection-URI"
                 collection-URI="Series id used in TEI biblScope. Only needed for subcollection filtering"

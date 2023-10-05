@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <meta xmlns="http://exist-db.org/xquery/repo">
-    <description>The British Library Collection</description>
+    <description>The WesleyWorks Library Collection</description>
     <author>srophe.org</author>
     <website>srophe.org</website>
     <status>alpha</status>
     <license>GNU-LGPL</license>
     <copyright>true</copyright>
     <type>application</type>
-    <target>britishLibrary</target>
+    <target>WesleyWorks</target>
     <prepare>pre-install.xql</prepare>
     <finish>post-install.xql</finish>
 <deployed>2022-03-17T10:32:21.457-04:00</deployed></meta>

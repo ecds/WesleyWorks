@@ -4,11 +4,11 @@
     <xs:import namespace="http://www.tei-c.org/ns/Examples" schemaLocation="examples.xsd"/>
     <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
   <!--
-    Schema generated from ODD source 2014-01-20T21:40:46Z. 
+    Schema generated from ODD source 2014-01-20T21:40:46Z.
     Edition: Version 2.6.0. Last updated on
     	20th January 2014, revision 12802
     Edition Location: http://www.tei-c.org/Vault/P5/Version 2.6.0/
-    
+
   -->
   <!-- TEI material can be licensed differently depending on the use you intend to make of it. Hence it is made available under both the CC+BY and BSD-2 licences. The CC+BY licence is generally appropriate for usages which treat TEI content as data or documentation. The BSD-2 licence is generally appropriate for usage of TEI content in a software environment. For further information or clarification, please contact the TEI Consortium (info@tei-c.org). -->
     <xs:complexType name="macro.paraContent" mixed="true">
@@ -9224,7 +9224,7 @@ Suggested values include: 1] WGS84; 2] MGRS; 3] OSGB36; 4] ED50</xs:documentatio
                                     <xs:restriction base="xs:token">
                                         <xs:enumeration value="OSGB36">
                                             <xs:annotation>
-                                                <xs:documentation>(ordnance survey great britain) the value supplied is to be interpreted as a British National Grid Reference.</xs:documentation>
+                                                <xs:documentation>(ordnance survey great britain) the value supplied is to be interpreted as a WesleyWorks National Grid Reference.</xs:documentation>
                                             </xs:annotation>
                                         </xs:enumeration>
                                     </xs:restriction>
