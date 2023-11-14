@@ -41,4 +41,4 @@ A new .xar file will be built and saved in srophe/build/ and srophe-data/build. 
 Once deployed the application should show up as 'The Srophe web application' on your dashboard. 
 Click on the icon to be taken to the app. 
 
-Learn how to customize the application. 
+Learn how to customize the application.
