@@ -1,7 +1,5 @@
 FROM --platform=linux/amd64 pkoiralap/existdb:1.0.0
 
-ARG ADMIN_PASSWORD
-
 COPY autodeploy/*.xar /exist/autodeploy/
 COPY conf/controller-config.xml /exist/etc/webapp/WEB-INF/
 COPY conf/collection.xconf.init /exist/etc/
@@ -36,7 +34,7 @@ HEALTHCHECK CMD [ "java", \
 "--xpath", "system:get-version()" ]
 
 
-ENV ADMIN_PASSWORD=$ADMIN_PASSWORD
+ENV ADMIN_PASSWORD=security!
 
 ENTRYPOINT [ "/busybox/sh", "/entrypoint.sh"]
 

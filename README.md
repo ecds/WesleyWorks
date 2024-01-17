@@ -57,7 +57,7 @@ Learn how to customize the application.
 Build the container.
 
 ~~~bash
-docker build -f Dockerfile_local -t wesworks --build-arg ADMIN_PASSWORD=security! .
+docker build -f Dockerfile_local -t wesworks .
 ~~~
 
 Start the container.
@@ -69,5 +69,3 @@ docker run -it -p 8080:8080 wesworks
 If all goes well, you should be able to see the app running in the container at [localhost:8080](http://localhost:8080).
 
 When you make changes to the code, you will need to stop the container and rebuild it.
-
-The "ADMIN_PASSWORD=security!" bit sets an environment variable used when starting eXist. This can be whatever you want.
