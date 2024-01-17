@@ -1,3 +1,4 @@
+#!/busybox/sh
 # force update
 GITHUB_ORG="ecds"
 GITHUB_REPOSITORY="WesleyWorks-data"
@@ -32,14 +33,24 @@ VERSION=$(cat expath-pkg.xml | grep package | grep version=  | awk -F'version="'
 # GET the package name of the project from the expath-pkg.xml file
 PACKAGE_NAME=$(cat expath-pkg.xml | grep package | grep version=  | awk -F'abbrev="' '{ print $2 }' | awk -F'"' '{ print tolower($1) }')
 
-echo "Deploying app $PACKAGE_NAME:$VERSION"
+server_startup () {
+    java org.exist.start.Main jetty | tee startup.log
+}
 
+password_change() {
+    while true; do
+        tail -n 20 startup.log | grep "Jetty server started" && break
+        sleep 5
+    done
 
-echo "Building docker file"
-docker build -t "$PACKAGE_NAME:$VERSION" --build-arg ADMIN_PASSWORD="$ADMIN_PASSWORD" .
-echo docker build -t "$PACKAGE_NAME:$VERSION" --build-arg ADMIN_PASSWORD="$ADMIN_PASSWORD" .
-echo "Built successfully"
+    echo "running password change"
+    java org.exist.start.Main client \
+    --no-gui \
+    -u admin -P '' \
+    -x "sm:passwd('admin', '$ADMIN_PASSWORD')"
+    echo "ran password change"
+}
 
-echo "Starting Docker container"
-echo "Open your browser to http://localhost:8080"
-docker run -it -p 8080:8080 "$PACKAGE_NAME:$VERSION" > /dev/null 2>&1
+server_startup &
+password_change
+wait

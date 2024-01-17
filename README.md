@@ -50,22 +50,24 @@ Learn how to customize the application.
 
 #### Local Requirements
 
-*NOTE:* If you are on a Mac, you can use [Homebrew](https://brew.sh/) to install these requirements.
-
 * [Docker](https://www.docker.com/products/docker-desktop/)
-* [JDK](https://www.oracle.com/java/technologies/downloads/)
-* Ant [Windows](https://mkyong.com/ant/how-to-install-apache-ant-on-windows/) | [MacOS](https://mkyong.com/ant/how-to-apache-ant-on-mac-os-x/)
 
 #### Build and Run
 
-From the root directory for this codebase, run the following command from the terminal.
+Build the container.
 
 ~~~bash
-ADMIN_PASSWORD=security! ./build/local.sh
+docker build -f Dockerfile_local -t wesworks --build-arg ADMIN_PASSWORD=security! .
+~~~
+
+Start the container.
+
+~~~bash
+docker run -it -p 8080:8080 wesworks
 ~~~
 
 If all goes well, you should be able to see the app running in the container at [localhost:8080](http://localhost:8080).
 
-When you make changes to the code, you will need to stop the container and rerun the the script.
+When you make changes to the code, you will need to stop the container and rebuild it.
 
-The "ADMIN_PASSWORD=security!" bit sets an environment variable used when starting eXist. This can be whatever you want. You could also set it to your environment and not have to include it each time you run the container.
+The "ADMIN_PASSWORD=security!" bit sets an environment variable used when starting eXist. This can be whatever you want.
