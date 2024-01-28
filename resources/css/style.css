@@ -305,7 +305,7 @@ img{ margin:0px }
 .navbar .brand {margin-top:-.75em; margin-left:40px;padding-left:0;}
 .navbar .brand img {margin-left:1.5em;padding-left:0;}
 .navbar-inner .nav > li > a:hover, .advanced-search > a:hover {
-        border-bottom: 4px solid #DDEAF1 !important;  
+        border-bottom: 4px solid #000 !important;  
 }
 .navbar-inner > .container > .nav > li.selected {border-bottom: 4px solid #E69849 !important; }
 .navbar.advanced-search > a {color:#999; text-decoration:none;}
