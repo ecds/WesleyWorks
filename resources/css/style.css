@@ -188,7 +188,7 @@ footer .poweredby img { width: 75px; }
 /* H */
 .hint {font-size:small; font-style:italic; font-color:grey;}
 
-.home-logo{width:100px;}
+.home-logo{width:50px;}
 .home-page-text {
     color:white; font-size:1.75em; margin-top:2em;
     font-weight:200;
@@ -301,7 +301,7 @@ img{ margin:0px }
 .navbar-inner {border-bottom:.5em solid #456889 !important;}
 .navbar-inner .container{height: 45px !important; padding-top:.5em; margin-left:.5em;}
 .navbar-brand {margin-top:-.75em; padding-left:0; margin-left:0; margin-right:-2em;}
-.navbar-brand img {padding:0; margin:0; }
+.navbar-brand img {padding:0; margin:25px 0; }
 .navbar .brand {margin-top:-.75em; margin-left:40px;padding-left:0;}
 .navbar .brand img {margin-left:1.5em;padding-left:0;}
 .navbar-inner .nav > li > a:hover, .advanced-search > a:hover {
