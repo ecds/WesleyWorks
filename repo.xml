@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <meta xmlns="http://exist-db.org/xquery/repo">
-    <description>The WesleyWorks Library Collection</description>
+    <description>The WesleyWorks Digital Edition</description>
     <author>srophe.org</author>
     <website>srophe.org</website>
     <status>alpha</status>
