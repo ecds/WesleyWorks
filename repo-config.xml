@@ -15,13 +15,13 @@
         <!-- Web Site URL -->
         <url>https://wesleyworks.ecdsdev.org/</url>
         <!-- Root of app for building dynamic links. Default is eXist app root  /exist/apps/srophe -->
-        <nav-base>/exist/apps/WesleyWorks</nav-base>
+        <nav-base></nav-base>
         <!-- eXist app root for app deployment-->
         <app-root>WesleyWorks</app-root>
         <!-- eXist data app root for TEI application.  -->
         <data-root>WesleyWorks-data</data-root>
         <!-- Base URI for identifiers in app data -->
-        <base_uri>https://wesleyworks.ecdsdev.org/</base_uri>
+        <base_uri>https://wesleyworks.ecdsdev.org</base_uri>
         <!--
             Path to ODD file. Can be used in XSLT or XQuery transformations for controlled values.
             Path to ODD file from app-root, or as an absolute path.
